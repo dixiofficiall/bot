@@ -7,6 +7,8 @@ import requests
 import time
 import transformers
 import torch
+import dialogflow
+
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 
