@@ -3,6 +3,8 @@ from discord.ext import commands
 import os
 from flask import Flask
 from threading import Thread
+import requests
+import time
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 
@@ -45,9 +47,7 @@ async def on_member_remove(member):
         embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
         await channel.send(embed=embed)
 
-
-
-
+# Flask
 app = Flask('')
 
 @app.route('/')
@@ -61,15 +61,9 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 
-
-
-
 keep_alive()
 
-import requests
-import time
-
-
+# Pingowanie Render
 def auto_ping():
     while True:
         try:
@@ -79,7 +73,7 @@ def auto_ping():
             print(f"Błąd pingu: {e}")
         time.sleep(30)  # ping co 30 sekund
 
-threading.Thread(target=auto_ping).start()
-
+# Uruchomienie pingu w osobnym wątku
+Thread(target=auto_ping).start()
 
 bot.run(TOKEN)
