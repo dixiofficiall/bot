@@ -5,10 +5,7 @@ from flask import Flask
 from threading import Thread
 import requests
 import time
-import transformers
-import torch
-import dialogflow
-
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 
@@ -16,11 +13,23 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 WELCOME_CHANNEL_ID = 1368259729914069194   # np. #welcome
 FAREWELL_CHANNEL_ID = 1368262433503707308  # np. #farewell
 
+# Inicjalizacja bota Discord
 intents = discord.Intents.default()
 intents.members = True  # ważne: potrzebne do wykrywania join/leave
-intents.message_content = True
+intents.message_content = True  # pozwala na dostęp do treści wiadomości
 
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+# Inicjalizacja modelu GPT-2
+tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+model = GPT2LMHeadModel.from_pretrained("gpt2")
+
+# Funkcja generująca odpowiedź AI na podstawie tekstu
+def generate_response(text):
+    inputs = tokenizer.encode(text, return_tensors="pt")
+    outputs = model.generate(inputs, max_length=50, num_return_sequences=1, no_repeat_ngram_size=2, top_p=0.9, temperature=0.7)
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return response
 
 @bot.event
 async def on_ready():
@@ -51,6 +60,27 @@ async def on_member_remove(member):
         embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
         await channel.send(embed=embed)
 
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return  # Ignoruj wiadomości wysyłane przez bota
+    
+    # Sprawdzanie treści wiadomości
+    if "fnaf" in message.content.lower():
+        response = generate_response("Tell me about Five Nights at Freddy's")
+        await message.channel.send(response)
+    
+    elif "hello" in message.content.lower():
+        response = generate_response("Say hello!")
+        await message.channel.send(response)
+    
+    # Przetwarzanie komend (np. !ping)
+    await bot.process_commands(message)
+
+@bot.command()
+async def ping(ctx):
+    await ctx.send("Pong!")
+
 # Flask
 app = Flask('')
 
@@ -80,5 +110,5 @@ def auto_ping():
 # Uruchomienie pingu w osobnym wątku
 Thread(target=auto_ping).start()
 
-# Bot Discord
+# Uruchomienie bota Discord
 bot.run(TOKEN)
