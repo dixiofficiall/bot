@@ -5,6 +5,8 @@ from flask import Flask
 from threading import Thread
 import requests
 import time
+import transformers
+import torch
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 
