@@ -61,6 +61,20 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 
+import requests
+import time
+
+
+def auto_ping():
+    while True:
+        try:
+            requests.get("https://dashboard.render.com/web/srv-d0b7elje5dus7381e41g/logs")  # <-- podmień na swój adres Render
+            print("Ping wysłany.")
+        except Exception as e:
+            print(f"Błąd pingu: {e}")
+        time.sleep(30)  # ping co 30 sekund
+
+threading.Thread(target=auto_ping).start()
 
 
 keep_alive()
