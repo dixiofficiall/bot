@@ -61,6 +61,11 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 
+
+
+
+keep_alive()
+
 import requests
 import time
 
@@ -77,5 +82,4 @@ def auto_ping():
 threading.Thread(target=auto_ping).start()
 
 
-keep_alive()
 bot.run(TOKEN)
