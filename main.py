@@ -12,6 +12,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 # Wstaw tu swoje ID kanałów
 WELCOME_CHANNEL_ID = 1368259729914069194   # np. #welcome
 FAREWELL_CHANNEL_ID = 1368262433503707308  # np. #farewell
+AI_CHANNEL_ID = 1368343534079311872  # <-- Podaj ID kanału tekstowego, na którym bot będzie odpowiadał jako AI
 
 # Inicjalizacja bota Discord
 intents = discord.Intents.default()
@@ -65,17 +66,20 @@ async def on_message(message):
     if message.author == bot.user:
         return  # Ignoruj wiadomości wysyłane przez bota
     
-    # Sprawdzanie treści wiadomości
-    if "fnaf" in message.content.lower():
-        response = generate_response("Tell me about Five Nights at Freddy's")
-        await message.channel.send(response)
-    
-    elif "hello" in message.content.lower():
-        response = generate_response("Say hello!")
-        await message.channel.send(response)
-    
-    # Przetwarzanie komend (np. !ping)
-    await bot.process_commands(message)
+    # Sprawdzanie, czy wiadomość pochodzi z odpowiedniego kanału
+    if message.channel.id == AI_CHANNEL_ID:
+        # Jeśli wiadomość zawiera słowo "fnaf", generuj odpowiedź na temat FNaF
+        if "fnaf" in message.content.lower():
+            response = generate_response("Tell me about Five Nights at Freddy's")
+            await message.channel.send(response)
+        
+        # Jeśli wiadomość zawiera "hello", odpowiedz "hello"
+        elif "hello" in message.content.lower():
+            response = generate_response("Say hello!")
+            await message.channel.send(response)
+        
+        # Przetwarzanie komend (np. !ping)
+        await bot.process_commands(message)
 
 @bot.command()
 async def ping(ctx):
@@ -112,3 +116,4 @@ Thread(target=auto_ping).start()
 
 # Uruchomienie bota Discord
 bot.run(TOKEN)
+
