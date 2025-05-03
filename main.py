@@ -76,4 +76,5 @@ def auto_ping():
 # Uruchomienie pingu w osobnym wątku
 Thread(target=auto_ping).start()
 
+# Bot Discord
 bot.run(TOKEN)
