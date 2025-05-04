@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks  # <== DODANE
 import os
 from flask import Flask
 from threading import Thread
@@ -9,11 +9,10 @@ from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 
-
 WELCOME_CHANNEL_ID = 1368259729914069194  
 FAREWELL_CHANNEL_ID = 1368262433503707308  
-AI_CHANNEL_ID = 1368343534079311872  
-
+AI_CHANNEL_ID = 1368343534079311872 
+bot_MESSAGE = 1368533922056503356
 
 intents = discord.Intents.default()
 intents.members = True  
@@ -21,10 +20,8 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-
 tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 model = GPT2LMHeadModel.from_pretrained("gpt2")
-
 
 def generate_response(text):
     inputs = tokenizer.encode(text, return_tensors="pt")
@@ -32,9 +29,17 @@ def generate_response(text):
     response = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return response
 
+@tasks.loop(seconds=5)
+async def send_auto_message():
+    channel = bot.get_channel(bot_MESSAGE)  # Możesz zmienić kanał jeśli chcesz
+    if channel:
+        await channel.send("bot działa")
+
 @bot.event
 async def on_ready():
     print(f"Zalogowano jako {bot.user}")
+    if not send_auto_message.is_running():
+        send_auto_message.start()
 
 @bot.event
 async def on_member_join(member):
@@ -66,20 +71,15 @@ async def on_message(message):
     if message.author == bot.user:
         return  
     
-    
     if message.channel.id == AI_CHANNEL_ID:
-        
         if "fnaf" in message.content.lower():
             response = generate_response("Tell me about Five Nights at Freddy's")
             await message.channel.send(response)
-        
-        
         elif "hello" in message.content.lower():
             response = generate_response("Say hello!")
             await message.channel.send(response)
-        
   
-        await bot.process_commands(message)
+    await bot.process_commands(message)
 
 @bot.command()
 async def ping(ctx):
@@ -101,7 +101,6 @@ def keep_alive():
 
 keep_alive()
 
-
 def auto_ping():
     while True:
         try:
@@ -111,9 +110,6 @@ def auto_ping():
             print(f"Błąd pingu: {e}")
         time.sleep(30)  
 
-
 Thread(target=auto_ping).start()
 
-
 bot.run(TOKEN)
-
