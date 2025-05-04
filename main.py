@@ -12,7 +12,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 WELCOME_CHANNEL_ID = 1368259729914069194  
 FAREWELL_CHANNEL_ID = 1368262433503707308  
 AI_CHANNEL_ID = 1368343534079311872 
-bot_MESSAGE = 1368533922056503356
+Bot_MESSAGE = 1368533922056503356
 
 intents = discord.Intents.default()
 intents.members = True  
@@ -31,7 +31,7 @@ def generate_response(text):
 
 @tasks.loop(seconds=5)
 async def send_auto_message():
-    channel = bot.get_channel(bot_MESSAGE)  # Możesz zmienić kanał jeśli chcesz
+    channel = bot.get_channel(Bot_MESSAGE)  # Możesz zmienić kanał jeśli chcesz
     if channel:
         await channel.send("bot działa")
 
